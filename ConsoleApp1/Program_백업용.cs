@@ -48,45 +48,40 @@
                         }
                         break;
 
-
                     case "2":
                         
                         Console.WriteLine("\n[아이템 버리기]");
-
+                        
                         if (inventory.Count == 0)
                         {
                             Console.WriteLine("버릴 아이템이 없습니다. 인벤토리가 비어있습니다.");
                         }
                         else
                         {
-                            // 삭제 성공 시 break로 탈출할 반복문 추가
-                            while (true)
+                            Console.WriteLine($"현재 보유 아이템 개수: {inventory.Count}개\n");
+
+                            for (int i = 0; i < inventory.Count; i++)
                             {
-                                Console.WriteLine($"현재 보유 아이템 개수: {inventory.Count}개\n");
+                                Console.WriteLine($"- [{i + 1}] {inventory[i]}");
+                            }
 
-                                for (int i = 0; i < inventory.Count; i++)
-                                {
-                                    Console.WriteLine($"- [{i + 1}] {inventory[i]}");
-                                }
+                            Console.Write("\n버릴 아이템 이름을 정확히 입력하세요: ");
+                            
+                            string throwItem = Console.ReadLine();
 
-                                Console.Write("\n버릴 아이템 이름을 정확히 입력하세요: ");
-                                
-                                string throwItem = Console.ReadLine();
+                            // 리스트에서 해당 아이템 삭제 시도
+                            if (inventory.Remove(throwItem))
+                            {
+                                Console.WriteLine($"'{throwItem}'을(를) 버렸습니다.");
+                            }
+                            else
+                            {
+                                Console.WriteLine("인벤토리에 해당 아이템이 존재하지 않습니다.");
+                                Console.WriteLine("\n버릴 아이템 이름을 정확히 입력하세요: ");
 
-                                if (inventory.Remove(throwItem))
-                                {
-                                    Console.WriteLine($"'{throwItem}'을(를) 버렸습니다.");
-                                    break; // 중요: 아이템 삭제 성공 시 while 루프를 탈출
-                                }
-                                else
-                                {
-                                    Console.Clear();
-                                    Console.WriteLine("인벤토리에 해당 아이템이 존재하지 않습니다. 다시 입력해주세요.\n");
-                                }
                             }
                         }
                         break;
-
 
                     case "3":
                         
@@ -121,7 +116,6 @@
                 // 결과를 확인한 후 다음 루프로 넘어가도록 대기
                 Console.WriteLine("\n[Enter] 키를 누르면 메뉴로 돌아갑니다.");
                 Console.ReadLine();
-                Console.Clear();
 
 
             }
