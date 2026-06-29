@@ -4,109 +4,86 @@
     {
         public class Player
         {
-            public int CurrentArea { get; set; } = 0; // 현재 머무르고 있는 지역 번호 (0: 마을)
+            public int CurrentArea { get; set; } = 0; // 0: 마을
         }
 
         class GameMap
         {
             static void Main(string[] args)
             {
-                // 1. 지역 번호(0~7)에 대응하는 고유 장소 명칭
                 string[] areaNames = { "마을", "숲", "초원", "성", "마왕성", "바다", "던전", "산" };
 
-                // 2. [요청 사안 반영] 각 지역으로 이어지는 길(true) 데이터 설정 (행: 출발지, 열: 목적지)
-                // 예: map[0, 1] = true 이면 '0번 마을'에서 '1번 숲'으로 가는 길이 존재함을 의미
-                bool[,] map = new bool[8, 8];
-
-                map[0, 1] = true; map[0, 2] = true; map[0, 3] = true;
-                map[1, 0] = true; map[1, 2] = true; map[1, 6] = true;
-                map[2, 0] = true; map[2, 1] = true; map[2, 4] = true; map[2, 5] = true;
-                map[3, 0] = true; map[3, 7] = true;
-                map[4, 2] = true; map[4, 6] = true; map[4, 7] = true;
-                map[5, 2] = true; map[5, 6] = true; map[5, 7] = true;
-                map[6, 1] = true; map[6, 4] = true; map[6, 5] = true;
-                map[7, 3] = true; map[7, 4] = true; map[7, 5] = true;
+                // [최적화 1] 출발지에서 갈 수 있는 목적지 번호들을 리스트(배열)로 명확히 관리
+                // map[0] = 마을에서 갈 수 있는 지역 번호들 (1번 숲, 2번 초원, 3번 성)
+                int[][] travelPaths = new int[][]
+                {
+            new int[] { 1, 2, 3 }, // [0] 마을 -> 숲, 초원, 성
+            new int[] { 0, 2, 6 }, // [1] 숲 -> 마을, 초원, 던전
+            new int[] { 0, 1, 4, 5 }, // [2] 초원 -> 마을, 숲, 마왕성, 바다
+            new int[] { 0, 7 },    // [3] 성 -> 마을, 산
+            new int[] { 2, 6, 7 }, // [4] 마왕성 -> 초원, 던전, 산
+            new int[] { 2, 6, 7 }, // [5] 바다 -> 초원, 던전, 산
+            new int[] { 1, 4, 5 }, // [6] 던전 -> 숲, 마왕성, 바다
+            new int[] { 3, 4, 5 }  // [7] 산 -> 성, 마왕성, 바다
+                };
 
                 Player player = new Player();
 
-                // 게임 메인 루프
                 while (true)
                 {
                     Console.Clear();
                     int current = player.CurrentArea;
 
-                    // 3. 현재 위치 정보 출력
                     Console.WriteLine("==================================================");
-                    Console.WriteLine($"  [🏠 현재 위치: {current}번 {areaNames[current]}]");
+                    Console.WriteLine($"  [현재 위치: {current}번 {areaNames[current]}]");
                     Console.WriteLine("==================================================");
-                    Console.WriteLine("\n[이동 가능한 주변 지역 목록 및 상태]");
+                    Console.WriteLine("\n[이동 가능한 주변 지역 목록]");
 
-                    // 4. 현재 위치에서 갈 수 있는 길인지 판정하여 목록 출력
-                    for (int i = 0; i < 8; i++)
+                    // [최적화 2] if문 없이 현재 지역에서 이동 가능한 데이터만 콕 집어서 출력
+                    foreach (int nextArea in travelPaths[current])
                     {
-                        if (i == current) continue; // 제자리는 출력 제외
-
-                        // 요청하신 '길 데이터(map)'를 검사하여 true인 곳만 이동 가능으로 표시
-                        string status = map[current, i] ? "이동 가능" : "🚫 막힌 길(이동 불가)";
-                        Console.WriteLine($" [{i}] {areaNames[i]} - 상태: {status}");
+                        Console.WriteLine($" [{nextArea}] {areaNames[nextArea]} (이동 가능)");
                     }
                     Console.WriteLine("--------------------------------------------------");
                     Console.WriteLine(" [ESC] 게임 종료");
                     Console.WriteLine("--------------------------------------------------");
 
-                    // 5. 유저 입력 처리
                     Console.Write("이동하고 싶은 지역의 번호를 입력하세요: ");
                     string input = Console.ReadLine();
 
-                    // ESC 종료 처리 (입력 없이 바로 엔터 치는 상황 대비)
+                    // ESC 처리 및 공백 예외 처리
                     if (string.IsNullOrEmpty(input)) continue;
+                    if (input.ToUpper() == "ESC") { Console.WriteLine("\n게임 종료."); break; }
 
-                    // 6. 이동 의사 확인 및 최종 위치 갱신
-                    int targetArea;
-                    if (int.TryParse(input, out targetArea) && targetArea >= 0 && targetArea < 8)
-                    {
-                        if (targetArea == current)
-                        {
-                            Console.WriteLine("\n이미 해당 지역에 머물고 있습니다! (제자리 유지)");
-                            System.Threading.Thread.Sleep(1000);
-                            continue;
-                        }
+                    // [최적화 3] 복잡한 조건문들을 제거하고 단 하나의 함수(Array.Exists)로 이동 가능 여부 판정
+                    int target;
+                    bool isNumber = int.TryParse(input, out target);
+                    bool canMove = isNumber && target >= 0 && target < 8 && Array.Exists(travelPaths[current], id => id == target);
 
-                        // 길 데이터를 기반으로 갈 수 있는 정당한 길(true)인지 체크
-                        if (map[current, targetArea] == true)
-                        {
-                            Console.Write($"\n[{targetArea}번 {areaNames[targetArea]}](으)로 이동하시겠습니까? (Y/N): ");
-                            string confirm = Console.ReadLine().ToUpper();
+                    // [최적화 4] C# 최신 Switch 문법을 사용하여 if-else 구조를 한눈에 보이게 맵핑
+                    string outputMessage = canMove switch
+                    {
+                        true => ConfirmAndMove(player, current, target, areaNames[target]),
+                        false => target == current
+                            ? "\n이미 해당 지역에 머물고 있습니다. (제자리 유지)"
+                            : "\n이동 실패: 갈 수 없는 지역 또는 길이 막혀 있습니다!"
+                    };
 
-                            if (confirm == "Y")
-                            {
-                                player.CurrentArea = targetArea; // 플레이어 지역 변경
-                                Console.WriteLine($"\n{areaNames[targetArea]}(으)로 걸어갑니다...");
-                                System.Threading.Thread.Sleep(1000);
-                            }
-                            else
-                            {
-                                Console.WriteLine("\n이동을 취소했습니다. 제자리에 표기됩니다.");
-                                System.Threading.Thread.Sleep(1000);
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine($"\n❌ 이동 실패: {areaNames[current]}에서 {areaNames[targetArea]}(으)로 가는 길이 없습니다!");
-                            System.Threading.Thread.Sleep(1500);
-                        }
-                    }
-                    else if (input.ToUpper() == "ESC")
-                    {
-                        Console.WriteLine("\n게임들을 종료합니다.");
-                        break;
-                    }
-                    else
-                    {
-                        Console.WriteLine("\n올바른 번호(0~7) 또는 ESC를 입력해주세요. (제자리 유지)");
-                        System.Threading.Thread.Sleep(1000);
-                    }
+                    Console.WriteLine(outputMessage);
+                    System.Threading.Thread.Sleep(1200);
                 }
+            }
+
+            // [최적화 5] 이동 의사 확인 로직을 별도 메서드로 완전히 분리하여 Main 함수 가독성 극대화
+            static string ConfirmAndMove(Player p, int current, int target, string targetName)
+            {
+                Console.Write($"\n[{target}번 {targetName}](으)로 이동하시겠습니까? (Y/N): ");
+                if (Console.ReadLine().ToUpper() == "Y")
+                {
+                    p.CurrentArea = target;
+                    return $"\n{targetName}(으)로 걸어갑니다...";
+                }
+                return "\n이동을 취소했습니다.";
             }
         }
     }
