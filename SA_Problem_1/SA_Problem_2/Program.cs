@@ -9,10 +9,10 @@ namespace SA_Problem_2
         static int[,] Map =
         {
             { 0, 0, 0, 0, 1 },
-            { 0, 1, 1, 0, 1 },
-            { 0, 1, 0, 0, 0 },
-            { 0, 0, 0, 1, 0 },
-            { 1, 1, 0, 1, 0 }
+            { 0, 1, 1, 1, 1 },
+            { 0, 0, 0, 0, 0 },
+            { 0, 1, 0, 1, 1 },
+            { 1, 0, 1, 0, 1 }
         };
 
         static int[] directR = { -1, 1, 0, 0 };
@@ -25,12 +25,8 @@ namespace SA_Problem_2
             public int Col;
             public int Dist;
 
-            public Point(int row, int col, int dist)
-            {
-                Row = row;
-                Col = col;
-                Dist = dist;
-            }
+            // 튜플 문법 테스트
+            public Point(int row, int col, int dist) => (Row, Col, Dist) = (row, col, dist);
         }
 
         static void FindNearestExit(int[,] map, int startR, int startC, List<Point> exits)
@@ -82,7 +78,7 @@ namespace SA_Problem_2
             }
 
             // 큐가 빌 때까지 출구를 못 찾은 경우
-            Console.WriteLine("도달할 수 있는 출구가 없습니다.");
+            Console.WriteLine("출구가 없습니다.");
         }
 
         static void Main(string[] args)
