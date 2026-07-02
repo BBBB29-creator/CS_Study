@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="SA_Problem_1/SA_Problem_1.csproj" />
   <Project Path="SA_Problem_2/SA_Problem_2.csproj" />
+  <Project Path="SA_Problem_3/SA_Problem_3.csproj" />
 </Solution>

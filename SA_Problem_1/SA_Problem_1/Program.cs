@@ -1,6 +1,6 @@
 ﻿namespace SA_Problem_1
 {
-    class Program
+    internal class Program
     {
         // 입력받은 맵 데이터 (0 == 평지, 1 == 벽/장애물)
         static int[,] Map =
@@ -22,12 +22,7 @@
             public int Col;
             public int Dist;
 
-            public Point(int row, int col, int dist)
-            {
-                this.Row = row;
-                this.Col = col;
-                this.Dist = dist;
-            }
+            public Point(int row, int col, int dist) => (Row, Col, Dist) = (row, col, dist);
         }
 
         static int CountReachableCells(int[,] map, int startR, int startC, int k)
@@ -49,7 +44,7 @@
             {
                 Point current = queue.Dequeue();
 
-                // 현재 칸의 거리가 K 이하인 경우에만 카운트를 증가시킵니다.
+                // 현재 칸의 거리가 K 이하인 경우에만 카운트를 증가
                 if (current.Dist <= k)
                 {
                     reachableCount++;

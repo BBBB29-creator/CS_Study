@@ -5,7 +5,7 @@ namespace SA_Problem_2
 {
     internal class Program
     {
-        // 입력받은 맵 데이터 (0 == 평지, 1 == 벽/장애물)
+        // 0 == 평지, 1 == 벽/장애물
         static int[,] Map =
         {
             { 0, 0, 0, 0, 1 },
@@ -68,7 +68,7 @@ namespace SA_Problem_2
                     if (moveRow < 0 || moveRow >= mapRows || moveCol < 0 || moveCol >= mapCols)
                         continue;
 
-                    // 벽(1)이거나 이미 방문한 곳이면 스킵
+                    // 벽이거나 이미 방문한 곳이면 스킵
                     if (map[moveRow, moveCol] == 1 || isVisited[moveRow, moveCol])
                         continue;
 
@@ -76,8 +76,6 @@ namespace SA_Problem_2
                     queue.Enqueue(new Point(moveRow, moveCol, current.Dist + 1));
                 }
             }
-
-            // 큐가 빌 때까지 출구를 못 찾은 경우
             Console.WriteLine("출구가 없습니다.");
         }
 
@@ -85,13 +83,13 @@ namespace SA_Problem_2
         {
             // 출구 목록 리스트 생성
             List<Point> exits = new List<Point>()
-        {
-            new Point(4, 4, 0),
-            new Point(3, 4, 0),
-            new Point(0, 4, 0)
-        };
+            {
+                new Point(4, 4, 0),
+                new Point(3, 4, 0),
+                new Point(0, 4, 0)
+            };
 
-            // (0,0)에서 출발하여 가장 가까운 출구 찾기
+            // 가장 가까운 출구 찾기
             FindNearestExit(Map, 0, 0, exits);
         }
     }
