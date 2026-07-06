@@ -20,7 +20,7 @@ namespace DeliveryEventTest
     }
 
     // 이벤트 전달에 사용할 데이터 클래스
-    public class OrderEventArgs
+    public struct OrderEventArgs  // GC 가동을 없애기 위해 클래스에서 스트럭트로 바꾸었다. 스택 메모리에 생기고 할 일을 마치고 알아서 사라진다.
     {
         public int OrderId { get; set; }
         public OrderStatus OldStatus { get; set; }
@@ -42,6 +42,7 @@ namespace DeliveryEventTest
 
         private Dictionary<OrderEventType, List<Delegate>> listeners = new Dictionary<OrderEventType, List<Delegate>>();
 
+        // 이벤트 구독
         public void Subscribe<T>(OrderEventType eventType, Action<T> callback)
         {
             if (!listeners.ContainsKey(eventType))
@@ -51,6 +52,7 @@ namespace DeliveryEventTest
             listeners[eventType].Add(callback);
         }
 
+        // 이벤트 구독 해지
         public void Unsubscribe<T>(OrderEventType eventType, Action<T> callback)
         {
             if (listeners.ContainsKey(eventType))
@@ -94,7 +96,7 @@ namespace DeliveryEventTest
         }
     }
 
-    // 모든 주문 처리를 통제하는 유일한 싱글톤 배송 관리자
+    // 모든 주문 처리를 통제하는 싱글톤 배송 관리자
     public class DeliveryManager
     {
         public static DeliveryManager Instance { get; } = new DeliveryManager();
